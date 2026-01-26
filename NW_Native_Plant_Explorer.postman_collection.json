@@ -1,0 +1,429 @@
+{
+	"info": {
+		"name": "NW Native Plant Explorer API",
+		"description": "API endpoints for querying native plants in the Pacific Northwest using iNaturalist data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "native-plant-explorer"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Root - API Information",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						""
+					]
+				},
+				"description": "Get API information and available endpoints"
+			},
+			"response": []
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"health"
+					]
+				},
+				"description": "Check API health status"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Plants - Washington (Basic)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=washington&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "washington",
+							"description": "State/region: washington, oregon, idaho, california"
+						},
+						{
+							"key": "per_page",
+							"value": "10",
+							"description": "Number of results (1-200)"
+						}
+					]
+				},
+				"description": "Get native plant observations from Washington state"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Plants - Oregon",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=oregon&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "oregon"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get native plant observations from Oregon"
+			},
+			"response": []
+		},
+		{
+			"name": "Search Plants - Ferns",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=washington&taxon=fern&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "washington"
+						},
+						{
+							"key": "taxon",
+							"value": "fern",
+							"description": "Search by common or scientific name"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Search for ferns in Washington"
+			},
+			"response": []
+		},
+		{
+			"name": "Search Plants - Douglas Fir",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=oregon&taxon=Douglas&per_page=5",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "oregon"
+						},
+						{
+							"key": "taxon",
+							"value": "Douglas"
+						},
+						{
+							"key": "per_page",
+							"value": "5"
+						}
+					]
+				},
+				"description": "Search for Douglas fir and related plants"
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - Coastal Climate Zone",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=oregon&climate_type=coastal&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "oregon"
+						},
+						{
+							"key": "climate_type",
+							"value": "coastal",
+							"description": "Climate zones: all, coastal, cascade-west, cascade-east, puget-sound"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get plants from coastal climate zone"
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - East Cascades (Dry Zone)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=oregon&climate_type=cascade-east&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "oregon"
+						},
+						{
+							"key": "climate_type",
+							"value": "cascade-east",
+							"description": "Rain shadow zone, dry climate"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get drought-tolerant plants from east of Cascades"
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - West Cascades (Wet Zone)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=washington&climate_type=cascade-west&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "washington"
+						},
+						{
+							"key": "climate_type",
+							"value": "cascade-west"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get plants that thrive in wet, western climate"
+			},
+			"response": []
+		},
+		{
+			"name": "Filter - Puget Sound Lowlands",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=washington&climate_type=puget-sound&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "washington"
+						},
+						{
+							"key": "climate_type",
+							"value": "puget-sound"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get plants from Puget Sound region (Seattle area)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Plants - Idaho",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=idaho&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "idaho"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get native plant observations from Idaho"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Plants - California",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=california&per_page=10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "california"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get native plant observations from Northern California"
+			},
+			"response": []
+		},
+		{
+			"name": "Regional Statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/stats",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"stats"
+					]
+				},
+				"description": "Get statistics about observations across all PNW regions"
+			},
+			"response": []
+		},
+		{
+			"name": "Complex Query - Oregon Ferns in Wet Zone",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/plants?region=oregon&climate_type=cascade-west&taxon=fern&per_page=15",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"plants"
+					],
+					"query": [
+						{
+							"key": "region",
+							"value": "oregon"
+						},
+						{
+							"key": "climate_type",
+							"value": "cascade-west"
+						},
+						{
+							"key": "taxon",
+							"value": "fern"
+						},
+						{
+							"key": "per_page",
+							"value": "15"
+						}
+					]
+				},
+				"description": "Example of combining multiple filters: Oregon + West Cascades + Ferns"
+			},
+			"response": []
+		}
+	]
+}
