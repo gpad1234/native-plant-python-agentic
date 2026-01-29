@@ -14,6 +14,7 @@ from PIL import Image
 import replicate
 import os
 import base64
+import requests
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -312,19 +313,72 @@ async def get_statistics():
         )
 
 
+async def identify_with_plantnet(image_data: bytes, filename: str) -> List[PlantIdentificationMatch]:
+    """
+    Identify plant using PlantNet API (botanical specialist)
+    Free tier: 500 identifications/day
+    Accuracy: 85-95% for species with good photos
+    """
+    api_key = os.getenv('PLANTNET_API_KEY')
+    if not api_key or api_key == 'your_plantnet_api_key_here':
+        raise ValueError("PLANTNET_API_KEY not configured")
+    
+    # PlantNet API endpoint
+    url = 'https://my-api.plantnet.org/v2/identify/all'
+    
+    # Prepare multipart form data
+    files = {'images': (filename, image_data, 'image/jpeg')}
+    params = {
+        'api-key': api_key,
+        'include-related-images': 'false'
+    }
+    
+    # Call PlantNet API
+    response = requests.post(url, params=params, files=files, timeout=30)
+    response.raise_for_status()
+    
+    data = response.json()
+    
+    # Parse results
+    results = []
+    for result in data.get('results', [])[:3]:  # Top 3 matches
+        species_info = result.get('species', {})
+        score = result.get('score', 0)
+        
+        # Get common names
+        common_names = species_info.get('commonNames', [])
+        common_name = common_names[0] if common_names else species_info.get('scientificNameWithoutAuthor', 'Unknown')
+        
+        # Build description from family and genus
+        family = species_info.get('family', {}).get('scientificNameWithoutAuthor', 'Unknown family')
+        genus = species_info.get('genus', {}).get('scientificNameWithoutAuthor', '')
+        description = f"Family: {family}"
+        if genus:
+            description += f"\nGenus: {genus}"
+        
+        results.append(PlantIdentificationMatch(
+            scientific_name=species_info.get('scientificNameWithoutAuthor', 'Unknown'),
+            common_name=common_name,
+            confidence=score,
+            description=description,
+            is_native=True,  # TODO: Cross-reference with PNW native species list
+            taxon_id=result.get('gbif', {}).get('id', 0)
+        ))
+    
+    return results
+
+
 @app.post("/api/identify", response_model=PlantIdentificationResult, tags=["Identification"])
 async def identify_plant(
     image: UploadFile = File(..., description="Plant image to identify")
 ):
     """
-    Identify a plant from an uploaded image (PROTOTYPE/MOCK)
+    Identify a plant from an uploaded image using PlantNet API (primary) with LLaVA fallback
     
-    This is a prototype implementation that returns mock data.
-    In production, this would integrate with:
-    - iNaturalist Computer Vision API
-    - Google Cloud Vision API
-    - Custom ML model
-    - LLM-based identification
+    Strategy:
+    1. Try PlantNet API first (botanical specialist, 85-95% accuracy)
+    2. Fallback to LLaVA vision model if PlantNet fails
+    3. Return mock data if both fail (for development)
     """
     start_time = datetime.utcnow()
     
@@ -342,6 +396,22 @@ async def identify_plant(
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid image file: {str(e)}")
         
+        # Strategy 1: Try PlantNet API first (botanical specialist)
+        try:
+            print("Attempting PlantNet identification...")
+            results = await identify_with_plantnet(contents, image.filename or 'plant.jpg')
+            if results and results[0].confidence > 0.3:  # Reasonable confidence threshold
+                print(f"PlantNet success: {results[0].scientific_name} ({results[0].confidence:.2%})")
+                end_time = datetime.utcnow()
+                processing_time = (end_time - start_time).total_seconds()
+                return PlantIdentificationResult(
+                    results=results,
+                    processing_time=processing_time
+                )
+        except Exception as plantnet_error:
+            print(f"PlantNet failed: {plantnet_error}, falling back to LLaVA...")
+        
+        # Strategy 2: Fallback to LLaVA vision model
         # Convert image to base64 for Replicate API
         img_byte_arr = io.BytesIO()
         img.save(img_byte_arr, format='JPEG')
@@ -349,7 +419,7 @@ async def identify_plant(
         img_base64 = base64.b64encode(img_byte_arr).decode('utf-8')
         data_uri = f"data:image/jpeg;base64,{img_base64}"
         
-        # Call LLaVA-Next vision model via Replicate
+        # Call LLaVA vision model via Replicate
         prompt = """Analyze this plant photo and identify the species.
 
 Focus on:
